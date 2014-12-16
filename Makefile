@@ -1,4 +1,5 @@
-CORPUSURL = https://github.com/brobertson/rigaudon/raw/master/Dictionaries/greek_and_latin.txt
+RIGAUDONURL = https://github.com/brobertson/rigaudon/raw/master/Dictionaries/greek_and_latin.txt
+CORPUSURL = http://www.perseus.tufts.edu/hopper/opensource/downloads/texts/hopper-texts-GreekRoman.tar.gz
 # CORPUSURL = http://ancientgreekocr.org/archived/hopper-texts-GreekRoman.tar.gz # backup copy
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
 
@@ -16,17 +17,31 @@ AMBIGS = \
 
 all: training_text.txt grc.freq.txt grc.word.txt grc.unicharambigs
 
-greek_and_latin.txt:
-	wget $(CORPUSURL)
+corpus:
+	mkdir -p $@
+	cd $@ ; wget -O - $(CORPUSURL) \
+	| zcat | tar x
 
-wordlist: tools/wordlistfromrigaudon.sh greek_and_latin.txt
+greek_and_latin.txt:
+	wget $(RIGAUDONURL)
+
+wordlist.perseus: tools/wordlistfromperseus.sh corpus
+	tools/wordlistfromperseus.sh corpus > $@
+
+wordlist.rigaudon: tools/wordlistfromrigaudon.sh greek_and_latin.txt
 	tools/wordlistfromrigaudon.sh < greek_and_latin.txt > $@
 
-grc.freq.txt: tools/rigaudonparsefreq.sh wordlist
-	tools/rigaudonparsefreq.sh < wordlist > $@
+grc.freq.txt: tools/wordlistparsefreq.sh wordlist.perseus
+	tools/wordlistparsefreq.sh < wordlist.perseus > $@
 
-grc.word.txt: tools/rigaudonparseword.sh wordlist
-	tools/rigaudonparseword.sh < wordlist > $@
+grc.rigaudon.word.txt: tools/rigaudonparseword.sh wordlist.rigaudon
+	tools/rigaudonparseword.sh < wordlist.rigaudon > $@
+
+grc.perseus.word.txt: tools/wordlistparseword.sh wordlist.perseus
+	tools/wordlistparseword.sh < wordlist.rigaudon > $@
+
+grc.word.txt: wordlist.rigaudon wordlist.perseus
+	cat $^ | LC_ALL="C" sort | LC_ALL="C" uniq > $@
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536
@@ -66,4 +81,4 @@ clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f training_text.txt grc.freq.txt grc.word.txt grc.unicharambigs
-	rm -rf greek_and_latin.txt corpus wordlist wordlist-betacode
+	rm -rf greek_and_latin.txt corpus wordlist.rigaudon wordlist.perseus wordlist-betacode
