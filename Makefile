@@ -15,7 +15,7 @@ AMBIGS = \
 	unicharambigs.omicronzero \
 	unicharambigs.quoteaccent
 
-all: training_text.txt grc.freq.txt grc.word.txt grc.unicharambigs
+all: training_text.txt grc.freq.txt grc.word.txt grc.bigram.txt grc.unicharambigs
 
 corpus:
 	mkdir -p $@
@@ -44,6 +44,9 @@ grc.perseus.word.txt: tools/wordlistparseword.sh wordlist.perseus
 
 grc.word.txt: grc.rigaudon.word.txt grc.perseus.word.txt
 	cat $^ | LC_ALL="C" sort | LC_ALL="C" uniq > $@
+
+grc.bigram.txt: tools/bigrams.awk wordlist
+	tools/bigrams.awk < wordlist | LC_ALL="C" sort -rn | LC_ALL="C" grep -v '1  κατὰ' |  LC_ALL="C" cut -d" " -f2- > $@
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536
