@@ -25,8 +25,10 @@ corpus:
 greek_and_latin.txt:
 	wget $(RIGAUDONURL)
 
-wordlist.perseus: tools/wordlistfromperseus.sh corpus
-	tools/wordlistfromperseus.sh corpus > $@
+wordlist.perseus: tools/wordlistfromperseus.sh  tools/betacode2utf8.sh corpus
+	tools/wordlistfromperseus.sh corpus > wordlist-betacode
+	tools/betacode2utf8.sh wordlist-betacode > $@
+	rm wordlist-betacode
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh greek_and_latin.txt
 	tools/wordlistfromrigaudon.sh < greek_and_latin.txt > $@
@@ -38,9 +40,9 @@ grc.rigaudon.word.txt: tools/rigaudonparseword.sh wordlist.rigaudon
 	tools/rigaudonparseword.sh < wordlist.rigaudon > $@
 
 grc.perseus.word.txt: tools/wordlistparseword.sh wordlist.perseus
-	tools/wordlistparseword.sh < wordlist.rigaudon > $@
+	tools/wordlistparseword.sh < wordlist.perseus > $@
 
-grc.word.txt: wordlist.rigaudon wordlist.perseus
+grc.word.txt: grc.rigaudon.word.txt grc.perseus.word.txt
 	cat $^ | LC_ALL="C" sort | LC_ALL="C" uniq > $@
 
 seed:

@@ -10,4 +10,4 @@ test $# -ne 0 && echo "$usage" && exit 1
 
 export LC_ALL=C # ensure reproducable sorting
 
-awk '{if (hit > 0) {print;}} /^et,/ {print; hit = 1}'
+awk '/^et,/{exit}1'
