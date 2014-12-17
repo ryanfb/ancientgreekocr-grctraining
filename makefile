@@ -54,6 +54,7 @@ AMBIGS = \
 GENLANGDATA = \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.unicharambigs \
+	langdata/grc/grc.word.bigrams \
 	langdata/grc/grc.wordlist
 
 all: grc.traineddata
@@ -97,6 +98,9 @@ langdata/grc/grc.unicharambigs: $(AMBIGS)
 langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist
 	mkdir -p langdata/grc
 	./tools/sortwordlist.sh < wordlist > $@
+
+langdata/grc/grc.word.bigrams: tools/bigrams.awk wordlist
+	tools/bigrams.awk < wordlist | LC_ALL="C" sort -rn | LC_ALL="C" grep -v '1  κατὰ' |  LC_ALL="C" cut -d" " -f2- > $@
 
 tools/accentambigs: tools/accentambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
