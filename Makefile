@@ -2,6 +2,16 @@ RIGAUDONURL = https://github.com/brobertson/rigaudon/raw/master/Dictionaries/gre
 CORPUSURL = http://www.perseus.tufts.edu/hopper/opensource/downloads/texts/hopper-texts-GreekRoman.tar.gz
 # CORPUSURL = http://ancientgreekocr.org/archived/hopper-texts-GreekRoman.tar.gz # backup copy
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
+OPENGREEKANDLATIN_REPOS = \
+	athenaeus-dev \
+	church_fathers-dev \
+	misc-dev \
+	fragmentary-dev \
+	dfhg-dev \
+	libanius-dev \
+	philo-dev \
+	catenae-dev \
+	cag-dev
 
 AMBIGS = \
 	unicharambigs.accent \
@@ -22,13 +32,25 @@ corpus:
 	cd $@ ; wget -O - $(CORPUSURL) \
 	| zcat | tar x
 
+opengreekandlatin:
+	mkdir -p $@
+	cd $@; for i in $(OPENGREEKANDLATIN_REPOS); do \
+		wget -O - https://github.com/OpenGreekAndLatin/$$i/tarball/master | zcat | tar x; \
+	done
+
 greek_and_latin.txt:
 	wget $(RIGAUDONURL)
 
-wordlist.perseus: tools/wordlistfromperseus.sh  tools/betacode2utf8.sh corpus
-	tools/wordlistfromperseus.sh corpus > wordlist-betacode
-	tools/betacode2utf8.sh wordlist-betacode > $@
+wordlist.perseus: tools/wordlistfromperseus.sh  tools/betacode2utf8.sh tools/striplineswithnonmatchingchars.sh corpus
+	tools/wordlistfromperseus.sh corpus "*_gk.xml" > wordlist-betacode
+	tools/betacode2utf8.sh wordlist-betacode | tools/striplineswithnonmatchingchars.sh allchars.txt > $@
 	rm wordlist-betacode
+
+wordlist.opengreekandlatin: tools/wordlistfromperseus.sh tools/striplineswithnonmatchingchars.sh opengreekandlatin
+	tools/wordlistfromperseus.sh opengreekandlatin "*.xml" | tools/striplineswithnonmatchingchars.sh allchars.txt > $@
+
+grc.opengreekandlatin.freq.txt: tools/wordlistparsefreq.sh wordlist.opengreekandlatin
+	tools/wordlistparsefreq.sh < wordlist.opengreekandlatin > $@
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh greek_and_latin.txt
 	tools/wordlistfromrigaudon.sh < greek_and_latin.txt > $@
@@ -44,6 +66,12 @@ grc.perseus.word.txt: tools/wordlistparseword.sh wordlist.perseus
 
 grc.word.txt: grc.rigaudon.word.txt grc.perseus.word.txt
 	cat $^ | LC_ALL="C" sort | LC_ALL="C" uniq > $@
+
+grc.opengreekandlatin.word.txt: tools/wordlistparseword.sh wordlist.opengreekandlatin
+	tools/wordlistparseword.sh < wordlist.opengreekandlatin > $@
+
+grc.word.all.txt: grc.perseus.word.txt grc.rigaudon.word.txt grc.opengreekandlatin.word.txt
+	cat $^ | LC_ALL='C' sort | LC_ALL='C' uniq > $@
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536

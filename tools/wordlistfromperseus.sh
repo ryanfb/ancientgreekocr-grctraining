@@ -1,12 +1,12 @@
 #!/bin/sh
 # See LICENSE file for copyright and license details.
 
-usage="Usage: $0 perseusdir
+usage="Usage: $0 perseusdir filepattern
 
 Outputs a list of all Greek words encountered in a Perseus
 corpus, with their frequency."
 
-test $# -ne 1 && echo "$usage" && exit 1
+test $# -ne 2 && echo "$usage" && exit 1
 
 export LC_ALL=C # ensure reproducable sorting
 
@@ -14,7 +14,7 @@ if [[ "$(uname)" == "Darwin" ]] && command -v gsed >/dev/null 2>&1; then
   GPREFIX="g"
 fi
 
-find "$1" -type f -name '*_gk.xml' | sort | while read i; do
+find "$1" -type f -name "$2" | sort | while read i; do
 	# Strip XML, separate by word, and feed through tlgu
 	# Note this betacode is lowercase, so we uppercase it for tlgu's sake
 	cat "$i" \
