@@ -1,3 +1,40 @@
+FONTSITE = http://greekfontsociety.gr
+# FONTSITE = http://ancientgreekocr.org/archived # backup copies
+
+FONT_NAMES = \
+             "GFS Artemisia" \
+             "GFS Artemisia Bold" \
+             "GFS Artemisia Bold Italic" \
+             "GFS Artemisia Italic" \
+             "GFS Bodoni" \
+             "GFS Bodoni Bold" \
+             "GFS Bodoni Bold Italic" \
+             "GFS Bodoni Italic" \
+             "GFS Didot" \
+             "GFS Didot Bold" \
+             "GFS Didot Bold Italic" \
+             "GFS Didot Italic" \
+             "GFS DidotClassic" \
+             "GFS Neohellenic" \
+             "GFS Neohellenic Bold" \
+             "GFS Neohellenic Bold Italic" \
+             "GFS Neohellenic Italic" \
+             "GFS Philostratos" \
+             "GFS Porson" \
+             "GFS Pyrsos" \
+             "GFS Solomos"
+
+FONT_URLNAMES = \
+                GFS_ARTEMISIA_OT \
+                GFS_BODONI_OT \
+                GFS_DIDOTCLASS_OT \
+                GFS_DIDOT_OT \
+                GFS_NEOHELLENIC_OT \
+                GFS_PHILOSTRATOS \
+                GFS_PORSON_OT \
+                GFS_PYRSOS \
+                GFS_SOLOMOS_OT
+
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
 
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
@@ -14,7 +51,12 @@ AMBIGS = \
 	unicharambigs.omicronzero \
 	unicharambigs.quoteaccent
 
-all: langdata/grc/grc.training_text langdata/grc/grc.unicharambigs langdata/grc/grc.wordlist
+GENLANGDATA = \
+	langdata/grc/grc.training_text \
+	langdata/grc/grc.unicharambigs \
+	langdata/grc/grc.wordlist
+
+all: $(GENLANGDATA) fonts/download
 
 corpus/.git/HEAD:
 	rm -rf corpus
@@ -66,8 +108,21 @@ tools/rhoambigs: tools/rhoambigs.c
 tools/isupper: tools/isupper.c
 	$(CC) $(UTFSRC) tools/util/runetype.c $@.c -o $@
 
+fonts/download:
+	rm -rf fonts
+	mkdir -p fonts
+	for i in $(FONT_URLNAMES); do \
+		cd fonts ; \
+		wget -q -O $$i.zip $(FONTSITE)/$$i.zip ; \
+		unzip -q -j $$i.zip ; \
+		rm -f OFL-FAQ.txt OFL.txt *Specimen.pdf *Specimenn.pdf ; \
+		rm -f readme.rtf .DS_Store ._* $$i.zip; \
+	done
+	chmod 644 fonts/*otf
+	touch $@
+
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f langdata/grc/grc.training_text langdata/grc/grc.unicharambigs langdata/grc/grc.wordlist
-	rm -rf corpus wordlist wordlist-betacode
+	rm -f $(GENLANGDATA)
+	rm -rf corpus wordlist wordlist-betacode fonts
