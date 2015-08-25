@@ -22,28 +22,28 @@ corpus/.git/HEAD:
 	cd corpus && git checkout $(CORPUS)
 
 wordlist: tools/wordlistfromperseus.sh tools/betacode2utf8.sh corpus/.git/HEAD
-	tools/wordlistfromperseus.sh corpus > wordlist-betacode
-	tools/betacode2utf8.sh wordlist-betacode > $@
+	./tools/wordlistfromperseus.sh corpus/ > wordlist-betacode
+	./tools/betacode2utf8.sh wordlist-betacode > $@
 	rm wordlist-betacode
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536
 
 unicharambigs.accent: tools/accentambigs
-	tools/accentambigs > $@
+	./tools/accentambigs > $@
 
 unicharambigs.breathing: tools/breathingambigs charsforambigs.txt
-	tools/breathingambigs charsforambigs.txt > $@
+	./tools/breathingambigs charsforambigs.txt > $@
 
 unicharambigs.rho: tools/rhoambigs charsforambigs.txt
-	tools/rhoambigs charsforambigs.txt > $@
+	./tools/rhoambigs charsforambigs.txt > $@
 
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
-	tools/omicronzeroambigs.sh charsforambigs.txt > $@
+	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
 langdata/grc/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt langdata/grc/grc.wordlist seed
 	mkdir -p langdata/grc
-	tools/makegarbage.sh allchars.txt langdata/grc/grc.wordlist seed > $@
+	./tools/makegarbage.sh allchars.txt langdata/grc/grc.wordlist seed > $@
 
 langdata/grc/grc.unicharambigs: $(AMBIGS)
 	mkdir -p langdata/grc
@@ -52,7 +52,7 @@ langdata/grc/grc.unicharambigs: $(AMBIGS)
 
 langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist
 	mkdir -p langdata/grc
-	tools/sortwordlist.sh < wordlist > $@
+	./tools/sortwordlist.sh < wordlist > $@
 
 tools/accentambigs: tools/accentambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
