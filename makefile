@@ -14,7 +14,7 @@ AMBIGS = \
 	unicharambigs.omicronzero \
 	unicharambigs.quoteaccent
 
-all: langdata/grc.training_text langdata/grc.unicharambigs langdata/grc.wordlist
+all: langdata/grc/grc.training_text langdata/grc/grc.unicharambigs langdata/grc/grc.wordlist
 
 corpus:
 	mkdir -p $@
@@ -41,17 +41,17 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-langdata/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt grc.word.txt seed
-	mkdir -p langdata
+langdata/grc/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt grc.word.txt seed
+	mkdir -p langdata/grc
 	tools/makegarbage.sh allchars.txt grc.word.txt seed > $@
 
-langdata/grc.unicharambigs: $(AMBIGS)
-	mkdir -p langdata
+langdata/grc/grc.unicharambigs: $(AMBIGS)
+	mkdir -p langdata/grc
 	echo v1 > $@
 	cat $(AMBIGS) >> $@
 
-langdata/grc.wordlist: tools/sortwordlist.sh wordlist
-	mkdir -p langdata
+langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist
+	mkdir -p langdata/grc
 	tools/sortwordlist.sh < wordlist > $@
 
 tools/accentambigs: tools/accentambigs.c
@@ -69,5 +69,5 @@ tools/isupper: tools/isupper.c
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f langdata/grc.training_text langdata/grc.unicharambigs langdata/grc.wordlist
+	rm -f langdata/grc/grc.training_text langdata/grc/grc.unicharambigs langdata/grc/grc.wordlist
 	rm -rf corpus wordlist wordlist-betacode
