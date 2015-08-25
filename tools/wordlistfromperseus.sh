@@ -18,5 +18,6 @@ find "$1" -type f -name '*-grc?.xml' | sort | while read i; do
 	| awk '{for(i=1;i<=NF;i++) {printf("%s\n", $i)}}' \
 	| sed '/[0-9]/d; /\[/d; /\]/d' \
 	| sed "s/[^A-Za-z*()\/=\\+|&']//g" \
+	| tr a-z A-Z \
 	| sed '/^$/d'
-done | sort | uniq
+done
