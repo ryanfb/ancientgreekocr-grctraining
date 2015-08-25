@@ -1,28 +1,28 @@
 FONTSITE = http://greekfontsociety.gr
 # FONTSITE = http://ancientgreekocr.org/archived # backup copies
 
-FONT_NAMES = \
+FONT_LIST = \
              "GFS Artemisia" \
-             "GFS Artemisia Bold" \
-             "GFS Artemisia Bold Italic" \
-             "GFS Artemisia Italic" \
-             "GFS Bodoni" \
-             "GFS Bodoni Bold" \
-             "GFS Bodoni Bold Italic" \
-             "GFS Bodoni Italic" \
-             "GFS Didot" \
-             "GFS Didot Bold" \
-             "GFS Didot Bold Italic" \
-             "GFS Didot Italic" \
-             "GFS DidotClassic" \
-             "GFS Neohellenic" \
-             "GFS Neohellenic Bold" \
-             "GFS Neohellenic Bold Italic" \
-             "GFS Neohellenic Italic" \
-             "GFS Philostratos" \
-             "GFS Porson" \
-             "GFS Pyrsos" \
-             "GFS Solomos"
+             "+ GFS Artemisia Bold" \
+             "+ GFS Artemisia Bold Italic" \
+             "+ GFS Artemisia Italic" \
+             "+ GFS Bodoni" \
+             "+ GFS Bodoni Bold" \
+             "+ GFS Bodoni Bold Italic" \
+             "+ GFS Bodoni Italic" \
+             "+ GFS Didot" \
+             "+ GFS Didot Bold" \
+             "+ GFS Didot Bold Italic" \
+             "+ GFS Didot Italic" \
+             "+ GFS DidotClassic" \
+             "+ GFS Neohellenic" \
+             "+ GFS Neohellenic Bold" \
+             "+ GFS Neohellenic Bold Italic" \
+             "+ GFS Neohellenic Italic" \
+             "+ GFS Philostratos" \
+             "+ GFS Porson" \
+             "+ GFS Pyrsos" \
+             "+ GFS Solomos"
 
 FONT_URLNAMES = \
                 GFS_ARTEMISIA_OT \
@@ -56,7 +56,7 @@ GENLANGDATA = \
 	langdata/grc/grc.unicharambigs \
 	langdata/grc/grc.wordlist
 
-all: $(GENLANGDATA) fonts/download
+all: grc.traineddata
 
 corpus/.git/HEAD:
 	rm -rf corpus
@@ -121,8 +121,12 @@ fonts/download:
 	chmod 644 fonts/*otf
 	touch $@
 
+grc.traineddata: $(GENLANGDATA) fonts/download
+	tesstrain.sh --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
+
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f $(GENLANGDATA)
 	rm -rf corpus wordlist wordlist-betacode fonts
+	rm -f $(GENLANGDATA)
+	rm -f grc.traineddata
