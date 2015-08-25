@@ -3,9 +3,9 @@ Greek (grc) training for Tesseract OCR. Specifically, this contains
 the Makefile and its prerequisites to build the following files
 needed for the grc training:
 
-- training_text.txt
-- langdata/grc.wordlist
+- langdata/grc.training_text
 - langdata/grc.unicharambigs
+- langdata/grc.wordlist
 
 
 # Dependencies
