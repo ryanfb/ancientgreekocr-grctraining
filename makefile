@@ -1,5 +1,5 @@
-CORPUSURL = http://www.perseus.tufts.edu/hopper/opensource/downloads/texts/hopper-texts-GreekRoman.tar.gz
-# CORPUSURL = http://ancientgreekocr.org/archived/hopper-texts-GreekRoman.tar.gz # backup copy
+CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
+
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
 
 AMBIGS = \
@@ -16,12 +16,12 @@ AMBIGS = \
 
 all: langdata/grc/grc.training_text langdata/grc/grc.unicharambigs langdata/grc/grc.wordlist
 
-corpus:
-	mkdir -p $@
-	cd $@ ; wget -O - $(CORPUSURL) \
-	| zcat | tar x
+corpus/.git/HEAD:
+	rm -rf corpus
+	git clone https://github.com/PerseusDL/canonical-greekLit corpus
+	cd corpus && git checkout $(CORPUS)
 
-wordlist: tools/wordlistfromperseus.sh tools/betacode2utf8.sh corpus
+wordlist: tools/wordlistfromperseus.sh tools/betacode2utf8.sh corpus/.git/HEAD
 	tools/wordlistfromperseus.sh corpus > wordlist-betacode
 	tools/betacode2utf8.sh wordlist-betacode > $@
 	rm wordlist-betacode
