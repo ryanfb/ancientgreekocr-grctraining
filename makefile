@@ -58,6 +58,8 @@ GENLANGDATA = \
 
 all: grc.traineddata
 
+langdata: $(GENLANGDATA)
+
 corpus/.git/HEAD:
 	rm -rf corpus
 	git clone https://github.com/PerseusDL/canonical-greekLit corpus
