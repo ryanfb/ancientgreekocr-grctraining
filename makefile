@@ -41,9 +41,9 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-langdata/grc/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt grc.word.txt seed
+langdata/grc/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt langdata/grc/grc.wordlist seed
 	mkdir -p langdata/grc
-	tools/makegarbage.sh allchars.txt grc.word.txt seed > $@
+	tools/makegarbage.sh allchars.txt langdata/grc/grc.wordlist seed > $@
 
 langdata/grc/grc.unicharambigs: $(AMBIGS)
 	mkdir -p langdata/grc
