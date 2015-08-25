@@ -14,7 +14,7 @@ AMBIGS = \
 	unicharambigs.omicronzero \
 	unicharambigs.quoteaccent
 
-all: training_text.txt langdata/grc.wordlist grc.unicharambigs
+all: training_text.txt langdata/grc.wordlist langdata/grc.unicharambigs
 
 corpus:
 	mkdir -p $@
@@ -44,7 +44,8 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-grc.unicharambigs: $(AMBIGS)
+langdata/grc.unicharambigs: $(AMBIGS)
+	mkdir -p langdata
 	echo v1 > $@
 	cat $(AMBIGS) >> $@
 
@@ -67,5 +68,5 @@ tools/isupper: tools/isupper.c
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f training_text.txt langdata/grc.wordlist grc.unicharambigs
+	rm -f training_text.txt langdata/grc.wordlist langdata/grc.unicharambigs
 	rm -rf corpus wordlist wordlist-betacode
