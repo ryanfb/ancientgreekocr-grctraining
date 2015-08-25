@@ -111,8 +111,7 @@ tools/isupper: tools/isupper.c
 fonts/download:
 	rm -rf fonts
 	mkdir -p fonts
-	for i in $(FONT_URLNAMES); do \
-		cd fonts ; \
+	cd fonts && for i in $(FONT_URLNAMES); do \
 		wget -q -O $$i.zip $(FONTSITE)/$$i.zip ; \
 		unzip -q -j $$i.zip ; \
 		rm -f OFL-FAQ.txt OFL.txt *Specimen.pdf *Specimenn.pdf ; \
