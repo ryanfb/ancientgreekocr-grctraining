@@ -4,10 +4,8 @@ the Makefile and its prerequisites to build the following files
 needed for the grc training:
 
 - training_text.txt
-- grc.word.txt
-- grc.freq.txt
 - grc.unicharambigs
-- grc.wordlist
+- langdata/grc.wordlist
 
 
 # Dependencies

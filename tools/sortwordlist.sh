@@ -3,11 +3,11 @@
 
 usage='Usage: $0
 
-Takes a wordlist in stdin, one word per line, and outputs the most
-frequent words to stdout.'
+Takes a wordlist in stdin, one word per line, and outputs words in
+order of frequency.'
 
 test $# -ne 0 && echo "$usage" && exit 1
 
 export LC_ALL=C # ensure reproducable sorting
 
-sort | uniq -c | sort -n | awk '{if ($1 > 1000) {print $2}}' | sort
+sort | uniq -c | sort -nr | awk '{print $2}'
