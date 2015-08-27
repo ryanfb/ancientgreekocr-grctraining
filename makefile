@@ -2,27 +2,27 @@ FONTSITE = http://greekfontsociety.gr
 # FONTSITE = http://ancientgreekocr.org/archived # backup copies
 
 FONT_LIST = \
-             "GFS Artemisia" \
-             "+ GFS Artemisia Bold" \
-             "+ GFS Artemisia Bold Italic" \
-             "+ GFS Artemisia Italic" \
-             "+ GFS Bodoni" \
-             "+ GFS Bodoni Bold" \
-             "+ GFS Bodoni Bold Italic" \
-             "+ GFS Bodoni Italic" \
-             "+ GFS Didot" \
-             "+ GFS Didot Bold" \
-             "+ GFS Didot Bold Italic" \
-             "+ GFS Didot Italic" \
-             "+ GFS DidotClassic" \
-             "+ GFS Neohellenic" \
-             "+ GFS Neohellenic Bold" \
-             "+ GFS Neohellenic Bold Italic" \
-             "+ GFS Neohellenic Italic" \
-             "+ GFS Philostratos" \
-             "+ GFS Porson" \
-             "+ GFS Pyrsos" \
-             "+ GFS Solomos"
+             "GFS Artemisia \
+             + GFS Artemisia Bold \
+             + GFS Artemisia Bold Italic \
+             + GFS Artemisia Italic \
+             + GFS Bodoni \
+             + GFS Bodoni Bold \
+             + GFS Bodoni Bold Italic \
+             + GFS Bodoni Italic \
+             + GFS Didot \
+             + GFS Didot Bold \
+             + GFS Didot Bold Italic \
+             + GFS Didot Italic \
+             + GFS DidotClassic \
+             + GFS Neohellenic \
+             + GFS Neohellenic Bold \
+             + GFS Neohellenic Bold Italic \
+             + GFS Neohellenic Italic \
+             + GFS Philostratos \
+             + GFS Porson \
+             + GFS Pyrsos \
+             + GFS Solomos"
 
 FONT_URLNAMES = \
                 GFS_ARTEMISIA_OT \
