@@ -36,6 +36,7 @@ FONT_URLNAMES = \
                 GFS_SOLOMOS_OT
 
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
+RIGAUDONCOMMIT = 3f6292f656bd2920fc8980893ad57fa111153837
 
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
 
@@ -64,12 +65,19 @@ langdata: $(GENLANGDATA)
 corpus/.git/HEAD:
 	rm -rf corpus
 	git clone https://github.com/PerseusDL/canonical-greekLit corpus
-	cd corpus && git checkout $(CORPUS)
+	cd corpus && git checkout $(CORPUSCOMMIT)
 
-wordlist: tools/wordlistfromperseus.sh tools/betacode2utf8.sh corpus/.git/HEAD
-	./tools/wordlistfromperseus.sh corpus/ > wordlist-betacode
-	./tools/betacode2utf8.sh wordlist-betacode > $@
-	rm wordlist-betacode
+rigaudon/.git/HEAD:
+	rm -rf rigaudon
+	git clone https://github.com/brobertson/rigaudon
+	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
+
+wordlist.unsorted: tools/betacode2utf8.sh tools/separatebetacode.awk tools/wordlistfromperseus.sh tools/wordlistfromrigaudon.sh corpus/.git/HEAD rigaudon/.git/HEAD
+	./tools/wordlistfromperseus.sh corpus/ > wordlist.perseus
+	./tools/separatebetacode.awk < wordlist.perseus > $@
+	./tools/betacode2utf8.sh betawords >> $@
+	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt >> $@
+	rm -f betawords wordlist.perseus
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536
@@ -95,12 +103,12 @@ langdata/grc/grc.unicharambigs: $(AMBIGS)
 	echo v1 > $@
 	cat $(AMBIGS) >> $@
 
-langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist
+langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.unsorted
 	mkdir -p langdata/grc
-	./tools/sortwordlist.sh < wordlist > $@
+	./tools/sortwordlist.sh < wordlist.unsorted > $@
 
-langdata/grc/grc.word.bigrams: tools/bigrams.awk wordlist
-	tools/bigrams.awk < wordlist | LC_ALL="C" sort -rn | LC_ALL="C" grep -v '1  κατὰ' |  LC_ALL="C" cut -d" " -f2- > $@
+langdata/grc/grc.word.bigrams: tools/bigrams.awk langdata/grc/grc.wordlist
+	tools/bigrams.awk < langdata/grc/grc.wordlist | LC_ALL="C" sort -rn | grep -v '1  κατὰ' | cut -d" " -f2- > $@
 
 tools/accentambigs: tools/accentambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
@@ -132,6 +140,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -rf corpus wordlist wordlist-betacode fonts
+	rm -f betawords wordlist.perseus wordlist.unsorted
+	rm -rf corpus fonts
 	rm -f $(GENLANGDATA)
 	rm -f grc.traineddata

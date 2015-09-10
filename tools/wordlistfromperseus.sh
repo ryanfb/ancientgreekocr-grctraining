@@ -17,7 +17,7 @@ find "$1" -type f -name '*-grc?.xml' | sort | while read i; do
 	| sed 's/<[^>]*>//g; s/\&[^;]*;//g' \
 	| awk '{for(i=1;i<=NF;i++) {printf("%s\n", $i)}}' \
 	| sed '/[0-9]/d; /\[/d; /\]/d' \
-	| sed "s/[^A-Za-z*()\/=\\+|&']//g" \
+	| sed "s/[^A-Za-zͰ-Ͽἀ-῝-ͯ*()\/=\\+|&']//g" \
 	| tr a-z A-Z \
 	| sed '/^$/d'
 done
