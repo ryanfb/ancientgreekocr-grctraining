@@ -6,7 +6,7 @@ BEGIN {
 }
 
 {
-	for(i= 1; i <= NF; i++){
+	for(i = 1; i <= NF; i++){
 		if(prev != "") {
 			bigram = prev " " $i; # build the bigram
 			count[bigram]++; # count the bigram
