@@ -72,12 +72,14 @@ rigaudon/.git/HEAD:
 	git clone https://github.com/brobertson/rigaudon
 	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
 
-wordlist.unsorted: tools/betacode2utf8.sh tools/separatebetacode.awk tools/wordlistfromperseus.sh tools/wordlistfromrigaudon.sh corpus/.git/HEAD rigaudon/.git/HEAD
-	./tools/wordlistfromperseus.sh corpus/ > wordlist.perseus
-	./tools/separatebetacode.awk < wordlist.perseus > $@
+wordlist.perseus: tools/betacode2utf8.sh tools/separatebetacode.awk tools/wordlistfromperseus.sh corpus/.git/HEAD
+	./tools/wordlistfromperseus.sh corpus/ > wordlist.raw
+	./tools/separatebetacode.awk < wordlist.raw > $@
 	./tools/betacode2utf8.sh betawords >> $@
-	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt >> $@
-	rm -f betawords wordlist.perseus
+	rm -f betawords wordlist.raw
+
+wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
+	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt > $@
 
 seed:
 	dd if=/dev/urandom of=$@ bs=1024 count=1536
@@ -103,12 +105,12 @@ langdata/grc/grc.unicharambigs: $(AMBIGS)
 	echo v1 > $@
 	cat $(AMBIGS) >> $@
 
-langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.unsorted
+langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.perseus wordlist.rigaudon
 	mkdir -p langdata/grc
-	./tools/sortwordlist.sh < wordlist.unsorted > $@
+	cat wordlist.perseus wordlist.rigaudon | ./tools/sortwordlist.sh > $@
 
-langdata/grc/grc.word.bigrams: tools/bigrams.awk langdata/grc/grc.wordlist
-	tools/bigrams.awk < langdata/grc/grc.wordlist | LC_ALL="C" sort -rn | grep -v '1  κατὰ' | cut -d" " -f2- > $@
+langdata/grc/grc.word.bigrams: tools/bigrams.awk wordlist.perseus
+	./tools/bigrams.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '$$1 > 5 {print $$2, $$3}' > $@
 
 tools/accentambigs: tools/accentambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
@@ -140,7 +142,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f betawords wordlist.perseus wordlist.unsorted
+	rm -f betawords wordlist.raw wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts
 	rm -f $(GENLANGDATA)
 	rm -f grc.traineddata
