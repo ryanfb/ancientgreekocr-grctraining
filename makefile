@@ -55,6 +55,7 @@ AMBIGS = \
 GENLANGDATA = \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.training_text.bigram_freqs \
+	langdata/grc/grc.training_text.unigram_freqs \
 	langdata/grc/grc.unicharambigs \
 	langdata/grc/grc.word.bigrams \
 	langdata/grc/grc.wordlist
@@ -112,6 +113,9 @@ langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.perseus wordlist.rigau
 
 langdata/grc/grc.training_text.bigram_freqs: tools/bigramfreqs.awk wordlist.perseus
 	./tools/bigramfreqs.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
+
+langdata/grc/grc.training_text.unigram_freqs: tools/unigramfreqs.awk wordlist.perseus
+	./tools/unigramfreqs.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
 
 langdata/grc/grc.word.bigrams: tools/bigramwords.awk wordlist.perseus
 	./tools/bigramwords.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '$$1 > 5 {print $$2, $$3}' > $@
