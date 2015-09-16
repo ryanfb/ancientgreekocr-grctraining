@@ -75,13 +75,10 @@ rigaudon/.git/HEAD:
 	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
 
 wordlist.perseus: tools/utf8greekonly.awk tools/wordlistfromperseus.sh corpus/.git/HEAD
-	./tools/wordlistfromperseus.sh corpus/ | LC_ALL=C ./tools/utf8greekonly.awk > $@
+	./tools/wordlistfromperseus.sh corpus/ | ./tools/utf8greekonly.awk > $@
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
 	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt > $@
-
-seed:
-	dd if=/dev/urandom of=$@ bs=1024 count=1536
 
 unicharambigs.accent: tools/accentambigs
 	./tools/accentambigs > $@
@@ -95,9 +92,9 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-langdata/grc/grc.training_text: tools/makegarbage.sh tools/isupper allchars.txt langdata/grc/grc.wordlist seed
+langdata/grc/grc.training_text: tools/makegarbage.awk allchars.txt langdata/grc/grc.wordlist
 	mkdir -p langdata/grc
-	./tools/makegarbage.sh allchars.txt langdata/grc/grc.wordlist seed > $@
+	cat langdata/grc/grc.wordlist allchars.txt | ./tools/makegarbage.awk > $@
 
 langdata/grc/grc.unicharambigs: $(AMBIGS)
 	mkdir -p langdata/grc
@@ -126,9 +123,6 @@ tools/breathingambigs: tools/breathingambigs.c
 tools/rhoambigs: tools/rhoambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
-tools/isupper: tools/isupper.c
-	$(CC) $(UTFSRC) tools/util/runetype.c $@.c -o $@
-
 fonts/download:
 	rm -rf fonts
 	mkdir -p fonts
@@ -145,7 +139,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
-	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
+	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts
