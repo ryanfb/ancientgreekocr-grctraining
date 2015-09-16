@@ -8,12 +8,6 @@ needed for the grc training:
 - langdata/grc.wordlist
 
 
-# Dependencies
-
-The tool tlgu is required. Download and install it from:
-  http://tlgu.carmen.gr/
-
-
 # To build the training parts
 
 Note that the build starts by downloading and unpacking a text

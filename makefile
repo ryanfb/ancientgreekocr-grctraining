@@ -74,11 +74,8 @@ rigaudon/.git/HEAD:
 	git clone https://github.com/brobertson/rigaudon
 	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
 
-wordlist.perseus: tools/betacode2utf8.sh tools/separatebetacode.awk tools/wordlistfromperseus.sh corpus/.git/HEAD
-	./tools/wordlistfromperseus.sh corpus/ > wordlist.raw
-	./tools/separatebetacode.awk < wordlist.raw > $@
-	./tools/betacode2utf8.sh betawords >> $@
-	rm -f betawords wordlist.raw
+wordlist.perseus: tools/utf8greekonly.awk tools/wordlistfromperseus.sh corpus/.git/HEAD
+	./tools/wordlistfromperseus.sh corpus/ | LC_ALL=C ./tools/utf8greekonly.awk > $@
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
 	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt > $@
@@ -150,7 +147,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/isupper
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f betawords wordlist.raw wordlist.perseus wordlist.rigaudon
+	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts
 	rm -f $(GENLANGDATA)
 	rm -f grc.traineddata
