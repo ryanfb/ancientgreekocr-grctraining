@@ -78,7 +78,7 @@ wordlist.perseus: tools/utf8greekonly.awk tools/wordlistfromperseus.sh corpus/.g
 	./tools/wordlistfromperseus.sh corpus/ | ./tools/utf8greekonly.awk > $@
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
-	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt > $@
+	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt | ./tools/utf8greekonly.awk > $@
 
 unicharambigs.accent: tools/accentambigs
 	./tools/accentambigs > $@
