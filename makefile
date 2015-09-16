@@ -142,6 +142,6 @@ clean:
 	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
-	rm -rf corpus fonts
+	rm -rf corpus fonts rigaudon
 	rm -f $(GENLANGDATA)
 	rm -f grc.traineddata
