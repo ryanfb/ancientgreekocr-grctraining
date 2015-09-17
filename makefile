@@ -92,9 +92,9 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-langdata/grc/grc.training_text: tools/makegarbage.awk allchars.txt langdata/grc/grc.wordlist
+langdata/grc/grc.training_text: tools/makegarbage allchars.txt langdata/grc/grc.wordlist
 	mkdir -p langdata/grc
-	cat langdata/grc/grc.wordlist allchars.txt | ./tools/makegarbage.awk > $@
+	cat langdata/grc/grc.wordlist allchars.txt | ./tools/makegarbage > $@
 
 langdata/grc/grc.unicharambigs: $(AMBIGS)
 	mkdir -p langdata/grc
@@ -120,6 +120,9 @@ tools/accentambigs: tools/accentambigs.c
 tools/breathingambigs: tools/breathingambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
+tools/makegarbage: tools/makegarbage.c
+	$(CC) $(UTFSRC) $@.c -o $@
+
 tools/rhoambigs: tools/rhoambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
@@ -142,7 +145,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
-	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/utf8greekonly
+	rm -f tools/accentambigs tools/breathingambigs tools/makegarbage tools/rhoambigs tools/utf8greekonly
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts rigaudon
