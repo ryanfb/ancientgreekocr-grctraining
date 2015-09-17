@@ -1,5 +1,5 @@
+# Note: remote files are archived at http://ancientgreekocr.org/grctraining.deps.tar.xz
 FONTSITE = http://greekfontsociety.gr
-# FONTSITE = http://ancientgreekocr.org/archived # backup copies
 
 FONT_LIST = \
              "GFS Artemisia \
@@ -135,16 +135,22 @@ tools/unigramfreqs: tools/unigramfreqs.c
 tools/utf8greekonly: tools/utf8greekonly.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
-fonts/download:
+fonts/download: fontsums
 	rm -rf fonts
 	mkdir -p fonts
 	cd fonts && for i in $(FONT_URLNAMES); do \
 		wget -q -O $$i.zip $(FONTSITE)/$$i.zip ; \
 		unzip -q -j $$i.zip ; \
 		rm -f OFL-FAQ.txt OFL.txt *Specimen.pdf *Specimenn.pdf ; \
-		rm -f readme.rtf .DS_Store ._* $$i.zip; \
+		rm -f readme.rtf .DS_Store ._* $$i.zip ; \
 	done
 	chmod 644 fonts/*otf
+	while read i; do \
+		f=`echo $$i | awk '{print $$1}'` ; \
+		origsum=`echo $$i | awk '{print $$2}'` ; \
+		sum=`cksum $$f | awk '{print $$1}'` ; \
+		test $$origsum = $$sum || exit 1 ; \
+	done < fontsums
 	touch $@
 
 grc.traineddata: $(GENLANGDATA) fonts/download
