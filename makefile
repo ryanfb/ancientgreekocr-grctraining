@@ -108,8 +108,8 @@ langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.perseus wordlist.rigau
 langdata/grc/grc.training_text.bigram_freqs: tools/bigramfreqs wordlist.perseus
 	./tools/bigramfreqs < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
 
-langdata/grc/grc.training_text.unigram_freqs: tools/unigramfreqs.awk wordlist.perseus
-	./tools/unigramfreqs.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
+langdata/grc/grc.training_text.unigram_freqs: tools/unigramfreqs wordlist.perseus
+	./tools/unigramfreqs < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
 
 langdata/grc/grc.word.bigrams: tools/bigramwords.awk wordlist.perseus
 	./tools/bigramwords.awk < wordlist.perseus | LC_ALL="C" sort -n -r | awk '$$1 > 5 {print $$2, $$3}' > $@
@@ -127,6 +127,9 @@ tools/makegarbage: tools/makegarbage.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
 tools/rhoambigs: tools/rhoambigs.c
+	$(CC) $(UTFSRC) $@.c -o $@
+
+tools/unigramfreqs: tools/unigramfreqs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
 tools/utf8greekonly: tools/utf8greekonly.c
@@ -149,7 +152,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 
 clean:
 	rm -f tools/accentambigs tools/bigramfreqs tools/breathingambigs
-	rm -f tools/makegarbage tools/rhoambigs tools/utf8greekonly
+	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts rigaudon
