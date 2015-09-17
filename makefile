@@ -74,11 +74,11 @@ rigaudon/.git/HEAD:
 	git clone https://github.com/brobertson/rigaudon
 	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
 
-wordlist.perseus: tools/utf8greekonly.awk tools/wordlistfromperseus.sh corpus/.git/HEAD
-	./tools/wordlistfromperseus.sh corpus/ | ./tools/utf8greekonly.awk > $@
+wordlist.perseus: tools/utf8greekonly tools/wordlistfromperseus.sh corpus/.git/HEAD
+	./tools/wordlistfromperseus.sh corpus/ | ./tools/utf8greekonly > $@
 
 wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
-	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt | ./tools/utf8greekonly.awk > $@
+	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt | ./tools/utf8greekonly > $@
 
 unicharambigs.accent: tools/accentambigs
 	./tools/accentambigs > $@
@@ -123,6 +123,9 @@ tools/breathingambigs: tools/breathingambigs.c
 tools/rhoambigs: tools/rhoambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
+tools/utf8greekonly: tools/utf8greekonly.c
+	$(CC) $(UTFSRC) $@.c -o $@
+
 fonts/download:
 	rm -rf fonts
 	mkdir -p fonts
@@ -139,7 +142,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
-	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs
+	rm -f tools/accentambigs tools/breathingambigs tools/rhoambigs tools/utf8greekonly
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts rigaudon

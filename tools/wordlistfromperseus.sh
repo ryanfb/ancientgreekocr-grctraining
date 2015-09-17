@@ -3,21 +3,19 @@
 
 usage="Usage: $0 perseusdir
 
-Outputs a list of all Greek words encountered in a Perseus
-corpus, with their frequency."
+Outputs a list of all Greek words encountered in a Perseus corpus."
 
 test $# -ne 1 && echo "$usage" && exit 1
 
-export LC_ALL=C # ensure reproducible sorting
-
-find "$1" -type f -name '*-grc?.xml' | sort | while read i; do
-	# Strip XML, separate by word
+find "$1" -type f -name '*-grc?.xml' | LC_ALL=C sort | while read i; do
+	# Strip XML, print one word per line, remove final
+	# punctuation characters, and ensure apostrophe
+	# characters are ancient greek.
 	cat "$i" \
 	| sed '1,/<body>/ d; /<\/body>/,$ d' \
 	| sed 's/<[^>]*>//g; s/\&[^;]*;//g' \
-	| awk '{for(i=1;i<=NF;i++) {printf("%s\n", $i)}}' \
-	| sed '/[0-9]/d; /\[/d; /\]/d' \
-	| sed "s/[^A-Za-zͰ-Ͽἀ-῝-ͯ*()\/=\\+|&']//g" \
-	| tr a-z A-Z \
+	| tr ' ' '\n' \
+	| sed 's/ʼ/᾿/g' \
+	| sed 's/[.,·;]$//g' \
 	| sed '/^$/d'
 done
