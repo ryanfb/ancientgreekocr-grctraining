@@ -1,17 +1,45 @@
-Source files for some automatically generated parts of the Ancient
-Greek (grc) training for Tesseract OCR. Specifically, this contains
-the Makefile and its prerequisites to build the following files
-needed for the grc training:
+grctraining
+===========
 
-- langdata/grc.training_text
-- langdata/grc.unicharambigs
-- langdata/grc.wordlist
+This repository contains source files and tools to build the
+prerequisites for the Ancient Greek (grc) training for Tesseract
+OCR.
 
+It also contains the rules to optionally build the training using
+the generated files.
 
-# To build the training parts
+To build prerequisites
+----------------------
 
-Note that the build starts by downloading and unpacking a text
-corpus from which to generate the wordlists.
+Note that the build starts by downloading a text corpus and
+dictionary from which to generate the wordlists.
 
-Make all of the parts with the command:
-  make
+Make all of the prerequisites with the command:
+  make langdata
+
+To build training
+-----------------
+
+To build the grc.traineddata the Tesseract training tools and
+tesstrain.sh script needs to be on your path (typically this will
+involve adding the tesseract/training directory to $PATH).
+
+Note that the prerequisites will be built first if they have not
+been already, and that a collection of fonts used for training
+will be downloaded.
+
+You can then build the training using this command:
+  make grc.traineddata
+
+Downloading needed dependencies
+-------------------------------
+
+Several dependencies are automatically downloaded and verified by
+the build process:
+
+- The Perseus canonical-greekLit text corpus
+- The rigaudon repository for Bruce Robertson's dictionary
+- A collection of fonts from the Greek Font Society
+
+In case they are not available, they are archived at:
+  http://ancientgreekocr.org/grctraining.deps.tar.xz
