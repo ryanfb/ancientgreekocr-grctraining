@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 		for(n = 0, cur = charwords; n < numcharwords; n++, cur++) {
 			/* Select a random word from the list of words that
 			 * contain the character */
-			b = rand() % cur->numwords;
+			b = random() % cur->numwords;
 			fputs(cur->words[b], stdout);
 
 			linechars += utflen(cur->words[b]) + 1;
