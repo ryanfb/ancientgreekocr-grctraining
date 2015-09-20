@@ -53,6 +53,7 @@ AMBIGS = \
 	unicharambigs.quoteaccent
 
 GENLANGDATA = \
+	langdata/grc/grc.config \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.training_text.bigram_freqs \
 	langdata/grc/grc.training_text.unigram_freqs \
@@ -91,6 +92,10 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
+
+langdata/grc/grc.config: grc.config
+	mkdir -p langdata/grc
+	sed '2i # commit: '`git rev-list -n 1 HEAD` < $< > $@
 
 langdata/grc/grc.training_text: tools/makegarbage allchars.txt langdata/grc/grc.wordlist
 	mkdir -p langdata/grc
