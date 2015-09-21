@@ -133,7 +133,7 @@ tools/breathingambigs: tools/breathingambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
 tools/charmetrics: tools/charmetrics.c
-	$(CC) $(UTFSRC) $@.c -o $@
+	$(CC) $(CAIROCFLAGS) $(UTFSRC) $@.c -o $@ $(CAIROLDFLAGS)
 
 tools/makegarbage: tools/makegarbage.c
 	$(CC) $(UTFSRC) $@.c -o $@

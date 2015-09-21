@@ -17,31 +17,35 @@
 #include <string.h>
 #include <pango/pangocairo.h>
 
+#define LENGTH(X) (sizeof X / sizeof X[0])
+#define MINZERO(x) ((x) > 0 ? (x) : 0)
+
 #define FONTSIZE 256 /* Yields an appropriate sized character for the 256x256 square */
 #define BASELINE_NORMALISE 64
+#define MAXCHARBYTES 24 /* Tesseract defines this limit */
 
-#define MAXCHARBYTES 24 /* Tesseract has this limit, IIRC */
-#define MAXCHARS 16384  /* Chosen arbitrarily as "big enough" */
-#define MINZERO(x) ((x) > 0 ? (x) : 0)
+enum { Bottom, Top, Width, Bearing, Advance, MetricsLast }; /* Metrics */
+
+typedef struct {
+	int min;
+	int max;
+} MinMax;
 
 typedef struct {
 	char c[MAXCHARBYTES];
-	int min_bottom, max_bottom;
-	int min_top, max_top;
-	int min_width, max_width;
-	int min_bearing, max_bearing;
-	int min_advance, max_advance;
+	MinMax metrics[MetricsLast];
 	int unset;
 } CharMetrics;
 
 int main(int argc, char *argv[]) {
-	CharMetrics cm[MAXCHARS];
+	CharMetrics *cm = NULL;
+	int cmnum = 0;
 	CharMetrics *cur;
 	char c[MAXCHARBYTES];
-	unsigned int cmnum, i, n;
+	int metrics[MetricsLast];
+	int i, j, n;
 	FILE *f;
 	int baseline;
-	int bottom, top, width, bearing, advance;
 	PangoFontDescription *font_description;
 	PangoRectangle rect;
 	cairo_surface_t *surface;
@@ -57,19 +61,16 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Can't open char file: %s\n", argv[1]);
 		return 1;
 	}
-	cmnum = 0;
 	while(fgets(c, MAXCHARBYTES, f) != NULL) {
 		c[strlen(c) - 1] = '\0'; /* remove newline */
-		if(cmnum < MAXCHARS) {
-			strncpy(cm[cmnum].c, c, MAXCHARBYTES);
-			cm[cmnum].min_bottom = cm[cmnum].max_bottom = -1;
-			cm[cmnum].min_top = cm[cmnum].max_top = -1;
-			cm[cmnum].min_width = cm[cmnum].max_width = -1;
-			cm[cmnum].min_bearing = cm[cmnum].max_bearing = -1;
-			cm[cmnum].min_advance = cm[cmnum].max_advance = -1;
-			cm[cmnum].unset = 1;
-			cmnum++;
+		cm = realloc(cm, sizeof(*cm) * ++cmnum);
+		cur = cm + cmnum - 1;
+		strncpy(cur->c, c, MAXCHARBYTES);
+		for(i = 0; i < LENGTH(cur->metrics); i++) {
+			cur->metrics[i].min = -1;
+			cur->metrics[i].max = -1;
 		}
+		cur->unset = 1;
 	}
 	fclose(f);
 
@@ -90,50 +91,26 @@ int main(int argc, char *argv[]) {
 			pango_layout_set_text(layout, cur->c, -1);
 			pango_layout_get_pixel_extents(layout, &rect, NULL);
 
-			bottom = MINZERO(baseline - (rect.y + rect.height));
-			top = MINZERO(256 - rect.y);
-			width = rect.width;
-			bearing = MINZERO(PANGO_LBEARING(rect));
-			advance = MINZERO(PANGO_RBEARING(rect));
+			metrics[Bottom] = MINZERO(baseline - (rect.y + rect.height));
+			metrics[Top] = MINZERO(256 - rect.y);
+			metrics[Width] = rect.width;
+			metrics[Bearing] = MINZERO(PANGO_LBEARING(rect));
+			metrics[Advance] = MINZERO(PANGO_RBEARING(rect));
 
 			if(cur->unset) {
-				cur->min_bottom = cur->max_bottom = bottom;
-				cur->min_top = cur->max_top = top;
-				cur->min_width = cur->max_width = width;
-				cur->min_bearing = cur->max_bearing = bearing;
-				cur->min_advance = cur->max_advance = advance;
+				for(j = 0; j < LENGTH(metrics); j++) {
+					cur->metrics[j].min = cur->metrics[j].max = metrics[j];
+				}
 				cur->unset = 0;
 			}
 
-			if(cur->min_bottom > bottom) {
-				cur->min_bottom = bottom;
-			}
-			if(cur->max_bottom < bottom) {
-				cur->max_bottom = bottom;
-			}
-			if(cur->min_top > top) {
-				cur->min_top = top;
-			}
-			if(cur->max_top < top) {
-				cur->max_top = top;
-			}
-			if(cur->min_width > width) {
-				cur->min_width = width;
-			}
-			if(cur->max_width < width) {
-				cur->max_width = width;
-			}
-			if(cur->min_bearing > bearing) {
-				cur->min_bearing = bearing;
-			}
-			if(cur->max_bearing < bearing) {
-				cur->max_bearing = bearing;
-			}
-			if(cur->min_advance > advance) {
-				cur->min_advance = advance;
-			}
-			if(cur->max_advance < advance) {
-				cur->max_advance = advance;
+			for(j = 0; j < LENGTH(metrics); j++) {
+				if(cur->metrics[j].min > metrics[j]) {
+					cur->metrics[j].min = metrics[j];
+				}
+				if(cur->metrics[j].max < metrics[j]) {
+					cur->metrics[j].max = metrics[j];
+				}
 			}
 		}
 	}
@@ -143,14 +120,15 @@ int main(int argc, char *argv[]) {
 	cairo_surface_destroy(surface);
 
 	for(i = 0, cur = cm; i < cmnum; i++, cur++) {
-		printf("%s %d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-			cur->c,
-			cur->min_bottom, cur->max_bottom,
-			cur->min_top, cur->max_top,
-			cur->min_width, cur->max_width,
-			cur->min_bearing, cur->max_bearing,
-			cur->min_advance, cur->max_advance
-		);
+		fputs(cur->c, stdout);
+		fputc(' ', stdout);
+		for(j = 0; j < LENGTH(cur->metrics); j++) {
+			printf("%d,%d", cur->metrics[j].min, cur->metrics[j].max);
+			if(j != LENGTH(cur->metrics) - 1) {
+				fputc(',', stdout);
+			}
+		}
+		fputc('\n', stdout);
 	}
 
 	return 0;
