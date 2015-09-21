@@ -9,8 +9,8 @@
  * cc `pkg-config --cflags --libs pangocairo` charmetrics.c -o charmetrics
  */
 
-#define usage "charmetrics - calculates some metrics useful for a unicharset file\n" \
-              "usage: charmetrics chars.txt [fontnames]\n"
+#define usage "charmetrics - calculates character metrics and inserts them into a unicharset file\n" \
+              "usage: charmetrics [fontnames...] < unicharset\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +25,7 @@
 #define MAXCHARBYTES 24 /* Tesseract defines this limit */
 
 enum { Bottom, Top, Width, Bearing, Advance, MetricsLast }; /* Metrics */
+enum { Char, Prop, Metrics, Script, Other, Dir, Mirror, Normed, UnicharLast }; /* Unicharset entries */
 
 typedef struct {
 	int min;
@@ -32,19 +33,18 @@ typedef struct {
 } MinMax;
 
 typedef struct {
-	char c[MAXCHARBYTES];
 	MinMax metrics[MetricsLast];
-	int unset;
+	char u[UnicharLast][BUFSIZ];
+	int metricsunset;
 } CharMetrics;
 
 int main(int argc, char *argv[]) {
 	CharMetrics *cm = NULL;
 	int cmnum = 0;
 	CharMetrics *cur;
-	char c[MAXCHARBYTES];
+	char buf[BUFSIZ];
 	int metrics[MetricsLast];
 	int i, j, n;
-	FILE *f;
 	int baseline;
 	PangoFontDescription *font_description;
 	PangoRectangle rect;
@@ -52,33 +52,35 @@ int main(int argc, char *argv[]) {
 	cairo_t *cr;
 	PangoLayout *layout;
 
-	if(argc < 3) {
+	if(argc < 2) {
 		fputs(usage, stdout);
 		return 1;
 	}
 
-	if((f = fopen(argv[1], "r")) == NULL) {
-		fprintf(stderr, "Can't open char file: %s\n", argv[1]);
-		return 1;
+	/* Pass first 4 lines of unicharset straight through */
+	for(i = 0; i < 4; i++) {
+		fgets(buf, BUFSIZ, stdin);
+		fputs(buf, stdout);
 	}
-	while(fgets(c, MAXCHARBYTES, f) != NULL) {
-		c[strlen(c) - 1] = '\0'; /* remove newline */
+
+	while(fgets(buf, BUFSIZ, stdin) != NULL) {
 		cm = realloc(cm, sizeof(*cm) * ++cmnum);
 		cur = cm + cmnum - 1;
-		strncpy(cur->c, c, MAXCHARBYTES);
-		for(i = 0; i < LENGTH(cur->metrics); i++) {
-			cur->metrics[i].min = -1;
-			cur->metrics[i].max = -1;
+		cur->metricsunset = 1;
+		if(sscanf(buf, "%s %s %s %s %s %s %s %s",
+		          cur->u[Char], cur->u[Prop], cur->u[Metrics], cur->u[Script],
+		          cur->u[Other], cur->u[Dir], cur->u[Mirror], cur->u[Normed])
+		   != 8) {
+			fprintf(stderr, "Warning, failed to read line of unicharset: %s", buf);
+			cmnum--;
 		}
-		cur->unset = 1;
 	}
-	fclose(f);
 
 	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
 	cr = cairo_create(surface);
 	layout = pango_cairo_create_layout(cr);
 
-	for(n = 2; n < argc; n++) {
+	for(n = 1; n < argc; n++) {
 		font_description = pango_font_description_from_string(argv[n]);
 		pango_font_description_set_absolute_size(font_description, FONTSIZE * PANGO_SCALE);
 
@@ -88,7 +90,7 @@ int main(int argc, char *argv[]) {
 		baseline = (pango_layout_get_baseline(layout) / PANGO_SCALE) + BASELINE_NORMALISE;
 
 		for(i = 0, cur = cm; i < cmnum; i++, cur++) {
-			pango_layout_set_text(layout, cur->c, -1);
+			pango_layout_set_text(layout, cur->u[Char], -1);
 			pango_layout_get_pixel_extents(layout, &rect, NULL);
 
 			metrics[Bottom] = MINZERO(baseline - (rect.y + rect.height));
@@ -97,11 +99,11 @@ int main(int argc, char *argv[]) {
 			metrics[Bearing] = MINZERO(PANGO_LBEARING(rect));
 			metrics[Advance] = MINZERO(PANGO_RBEARING(rect));
 
-			if(cur->unset) {
+			if(cur->metricsunset) {
 				for(j = 0; j < LENGTH(metrics); j++) {
 					cur->metrics[j].min = cur->metrics[j].max = metrics[j];
 				}
-				cur->unset = 0;
+				cur->metricsunset = 0;
 			}
 
 			for(j = 0; j < LENGTH(metrics); j++) {
@@ -120,13 +122,21 @@ int main(int argc, char *argv[]) {
 	cairo_surface_destroy(surface);
 
 	for(i = 0, cur = cm; i < cmnum; i++, cur++) {
-		fputs(cur->c, stdout);
-		fputc(' ', stdout);
+		for(j = 0; j < Metrics; j++) {
+			fputs(cur->u[j], stdout);
+			fputc(' ', stdout);
+		}
+
 		for(j = 0; j < LENGTH(cur->metrics); j++) {
 			printf("%d,%d", cur->metrics[j].min, cur->metrics[j].max);
 			if(j != LENGTH(cur->metrics) - 1) {
 				fputc(',', stdout);
 			}
+		}
+
+		for(j = 3; j < LENGTH(cur->u); j++) {
+			fputc(' ', stdout);
+			fputs(cur->u[j], stdout);
 		}
 		fputc('\n', stdout);
 	}
