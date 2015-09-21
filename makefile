@@ -38,6 +38,10 @@ FONT_URLNAMES = \
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
 RIGAUDONCOMMIT = 3f6292f656bd2920fc8980893ad57fa111153837
 
+PKG_CONFIG = pkg-config
+CAIROCFLAGS = `$(PKG_CONFIG) --cflags pangocairo`
+CAIROLDFLAGS = `$(PKG_CONFIG) --libs pangocairo`
+
 UTFSRC = tools/libutf/rune.c tools/libutf/utf.c
 
 AMBIGS = \
@@ -128,6 +132,9 @@ tools/bigramfreqs: tools/bigramfreqs.c
 tools/breathingambigs: tools/breathingambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
+tools/charmetrics: tools/charmetrics.c
+	$(CC) $(UTFSRC) $@.c -o $@
+
 tools/makegarbage: tools/makegarbage.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
@@ -162,7 +169,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
-	rm -f tools/accentambigs tools/bigramfreqs tools/breathingambigs
+	rm -f tools/accentambigs tools/bigramfreqs tools/breathingambigs tools/charmetrics
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
