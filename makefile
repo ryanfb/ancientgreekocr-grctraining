@@ -2,38 +2,62 @@
 FONTSITE = http://greekfontsociety.gr
 
 FONT_LIST = \
-             "GFS Artemisia \
-             + GFS Artemisia Bold \
-             + GFS Artemisia Bold Italic \
-             + GFS Artemisia Italic \
-             + GFS Bodoni \
-             + GFS Bodoni Bold \
-             + GFS Bodoni Bold Italic \
-             + GFS Bodoni Italic \
-             + GFS Didot \
-             + GFS Didot Bold \
-             + GFS Didot Bold Italic \
-             + GFS Didot Italic \
-             + GFS DidotClassic \
-             + GFS Neohellenic \
-             + GFS Neohellenic Bold \
-             + GFS Neohellenic Bold Italic \
-             + GFS Neohellenic Italic \
-             + GFS Philostratos \
-             + GFS Porson \
-             + GFS Pyrsos \
-             + GFS Solomos"
+	'GFS Artemisia' \
+	'GFS Artemisia Bold' \
+	'GFS Artemisia Bold Italic' \
+	'GFS Artemisia Italic' \
+	'GFS Bodoni' \
+	'GFS Bodoni Bold' \
+	'GFS Bodoni Bold Italic' \
+	'GFS Bodoni Italic' \
+	'GFS Didot' \
+	'GFS Didot Bold' \
+	'GFS Didot Bold Italic' \
+	'GFS Didot Italic' \
+	'GFS DidotClassic' \
+	'GFS Neohellenic' \
+	'GFS Neohellenic Bold' \
+	'GFS Neohellenic Bold Italic' \
+	'GFS Neohellenic Italic' \
+	'GFS Philostratos' \
+	'GFS Porson' \
+	'GFS Pyrsos' \
+	'GFS Solomos'
+
+# TODO: Patch tesseract's tess_train.sh to process font list arguments sanely
+FONT_LIST_TESS = \
+	"GFS Artemisia \
+	+ GFS Artemisia Bold \
+	+ GFS Artemisia Bold Italic \
+	+ GFS Artemisia Italic \
+	+ GFS Bodoni \
+	+ GFS Bodoni Bold \
+	+ GFS Bodoni Bold Italic \
+	+ GFS Bodoni Italic \
+	+ GFS Didot \
+	+ GFS Didot Bold \
+	+ GFS Didot Bold Italic \
+	+ GFS Didot Italic \
+	+ GFS DidotClassic \
+	+ GFS Neohellenic \
+	+ GFS Neohellenic Bold \
+	+ GFS Neohellenic Bold Italic \
+	+ GFS Neohellenic Italic \
+	+ GFS Philostratos \
+	+ GFS Porson \
+	+ GFS Pyrsos \
+	+ GFS Solomos"
 
 FONT_URLNAMES = \
-                GFS_ARTEMISIA_OT \
-                GFS_BODONI_OT \
-                GFS_DIDOTCLASS_OT \
-                GFS_DIDOT_OT \
-                GFS_NEOHELLENIC_OT \
-                GFS_PHILOSTRATOS \
-                GFS_PORSON_OT \
-                GFS_PYRSOS \
-                GFS_SOLOMOS_OT
+	GFS_ARTEMISIA_OT \
+	GFS_BODONI_OT \
+	GFS_DIDOTCLASS_OT \
+	GFS_DIDOT_OT \
+	GFS_NEOHELLENIC_OT \
+	GFS_PHILOSTRATOS \
+	GFS_PORSON_OT \
+	GFS_PYRSOS \
+	GFS_SOLOMOS_OT
 
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
 RIGAUDONCOMMIT = 3f6292f656bd2920fc8980893ad57fa111153837
@@ -57,6 +81,7 @@ AMBIGS = \
 	unicharambigs.quoteaccent
 
 GENLANGDATA = \
+	langdata/Greek.unicharset \
 	langdata/grc/grc.config \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.training_text.bigram_freqs \
@@ -96,6 +121,16 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
+
+allchars.box: allchars.txt
+	sed 's/$$/ 0 0 0 0 0/g' < $< > $@
+
+unicharset: allchars.box
+	unicharset_extractor allchars.box
+	set_unicharset_properties -U unicharset -O unicharset --script_dir .
+
+langdata/Greek.unicharset: tools/charmetrics unicharset
+	./tools/charmetrics $(FONT_LIST) < unicharset > $@
 
 langdata/grc/grc.config: grc.config
 	mkdir -p langdata/grc
@@ -166,11 +201,12 @@ fonts/download: fontsums
 	touch $@
 
 grc.traineddata: $(GENLANGDATA) fonts/download
-	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
+	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST_TESS) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
 	rm -f tools/accentambigs tools/bigramfreqs tools/breathingambigs tools/charmetrics
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly
+	rm -f allchars.box unicharset
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts rigaudon
