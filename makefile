@@ -122,15 +122,12 @@ unicharambigs.rho: tools/rhoambigs charsforambigs.txt
 unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 	./tools/omicronzeroambigs.sh charsforambigs.txt > $@
 
-allchars.box: allchars.txt
-	sed 's/$$/ 0 0 0 0 0/g' < $< > $@
-
-unicharset: allchars.box
+langdata/Greek.unicharset: tools/addmetrics allchars.txt
+	sed 's/$$/ 0 0 0 0 0/g' < allchars.txt > allchars.box
 	unicharset_extractor allchars.box
 	set_unicharset_properties -U unicharset -O unicharset --script_dir .
-
-langdata/Greek.unicharset: tools/charmetrics unicharset
-	./tools/charmetrics $(FONT_LIST) < unicharset > $@
+	./tools/addmetrics $(FONT_LIST) < unicharset > $@
+	rm -f allchars.box unicharset
 
 langdata/grc/grc.config: grc.config
 	mkdir -p langdata/grc
@@ -161,14 +158,14 @@ langdata/grc/grc.word.bigrams: tools/bigramwords.awk wordlist.perseus
 tools/accentambigs: tools/accentambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
+tools/addmetrics: tools/addmetrics.c
+	$(CC) $(CAIROCFLAGS) $(UTFSRC) $@.c -o $@ $(CAIROLDFLAGS)
+
 tools/bigramfreqs: tools/bigramfreqs.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
 tools/breathingambigs: tools/breathingambigs.c
 	$(CC) $(UTFSRC) $@.c -o $@
-
-tools/charmetrics: tools/charmetrics.c
-	$(CC) $(CAIROCFLAGS) $(UTFSRC) $@.c -o $@ $(CAIROLDFLAGS)
 
 tools/makegarbage: tools/makegarbage.c
 	$(CC) $(UTFSRC) $@.c -o $@
@@ -204,7 +201,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST_TESS) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
-	rm -f tools/accentambigs tools/bigramfreqs tools/breathingambigs tools/charmetrics
+	rm -f tools/accentambigs tools/addmetrics tools/bigramfreqs tools/breathingambigs
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly
 	rm -f allchars.box unicharset
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero

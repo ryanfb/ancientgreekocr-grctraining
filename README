@@ -14,7 +14,11 @@ To build prerequisites
 Note that the build starts by downloading a text corpus and
 dictionary from which to generate the wordlists.
 
-The build process requires git, wget and a C compiler.
+The build process requires git, wget, a C compiler.
+
+If you change allchars.txt, you will also need the pango and cairo
+development libraries, which are used to calculate character
+metrics.
 
 Make all of the prerequisites with the command:
   make langdata
