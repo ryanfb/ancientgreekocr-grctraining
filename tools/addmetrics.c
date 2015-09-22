@@ -9,7 +9,7 @@
  * cc `pkg-config --cflags --libs pangocairo` addmetrics.c -o addmetrics
  */
 
-#define usage "charmetrics - calculates character metrics and adds them to a unicharset file\n" \
+#define usage "addmetrics - calculates character metrics and adds them to a unicharset file\n" \
               "usage: addmetrics [fontnames...] < unicharset\n"
 
 #include <stdio.h>

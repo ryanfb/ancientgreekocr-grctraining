@@ -82,6 +82,7 @@ AMBIGS = \
 
 GENLANGDATA = \
 	langdata/Greek.unicharset \
+	langdata/Greek.xheights \
 	langdata/grc/grc.config \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.training_text.bigram_freqs \
@@ -128,6 +129,14 @@ langdata/Greek.unicharset: tools/addmetrics allchars.txt
 	set_unicharset_properties -U unicharset -O unicharset --script_dir .
 	./tools/addmetrics $(FONT_LIST) < unicharset > $@
 	rm -f allchars.box unicharset
+
+langdata/Greek.xheights: tools/xheight
+	rm -f langdata/Greek.xheights
+	for i in $(FONT_LIST); do \
+		./tools/xheight "$$i" \
+		| awk '{for(i=1;i<NF;i++) {printf("%s",$$i)} printf(" %d\n", $$NF)}' \
+		>>$@ ; \
+	done
 
 langdata/grc/grc.config: grc.config
 	mkdir -p langdata/grc
@@ -179,6 +188,9 @@ tools/unigramfreqs: tools/unigramfreqs.c
 tools/utf8greekonly: tools/utf8greekonly.c
 	$(CC) $(UTFSRC) $@.c -o $@
 
+tools/xheight: tools/xheight.c
+	$(CC) $(CAIROCFLAGS) $(UTFSRC) $@.c -o $@ $(CAIROLDFLAGS)
+
 fonts/download: fontsums
 	rm -rf fonts
 	mkdir -p fonts
@@ -202,7 +214,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 
 clean:
 	rm -f tools/accentambigs tools/addmetrics tools/bigramfreqs tools/breathingambigs
-	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly
+	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly tools/xheight
 	rm -f allchars.box unicharset
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
