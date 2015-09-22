@@ -134,7 +134,7 @@ langdata/Greek.xheights: tools/xheight
 	rm -f langdata/Greek.xheights
 	for i in $(FONT_LIST); do \
 		./tools/xheight "$$i" \
-		| awk '{for(i=1;i<NF;i++) {printf("%s",$$i)} printf(" %d\n", $$NF)}' \
+		| awk '{for(i=1;i<NF-1;i++) {printf("%s_",$$i)} printf("%s %d\n", $$(NF-1), $$NF)}' \
 		>>$@ ; \
 	done
 
