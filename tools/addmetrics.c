@@ -23,6 +23,8 @@
 #define FONTSIZE 256 /* Yields an appropriate sized character for the 256x256 square */
 #define BASELINE_NORMALISE 64
 #define MAXCHARBYTES 24 /* Tesseract defines this limit */
+#define MAXFIELD 256
+#define MAXFIELDS "256"
 
 enum { Bottom, Top, Width, Bearing, Advance, MetricsLast }; /* Metrics */
 enum { Char, Prop, Metrics, Script, Other, Dir, Mirror, Normed, UnicharLast }; /* Unicharset entries */
@@ -34,7 +36,7 @@ typedef struct {
 
 typedef struct {
 	MinMax metrics[MetricsLast];
-	char u[UnicharLast][BUFSIZ];
+	char u[UnicharLast][MAXFIELD];
 	int metricsunset;
 } CharMetrics;
 
@@ -67,7 +69,8 @@ int main(int argc, char *argv[]) {
 		cm = realloc(cm, sizeof(*cm) * ++cmnum);
 		cur = cm + cmnum - 1;
 		cur->metricsunset = 1;
-		if(sscanf(buf, "%s %s %s %s %s %s %s %s",
+		if(sscanf(buf, "%"MAXFIELDS"s %"MAXFIELDS"s %"MAXFIELDS"s %"MAXFIELDS"s "
+		               "%"MAXFIELDS"s %"MAXFIELDS"s %"MAXFIELDS"s %"MAXFIELDS"s",
 		          cur->u[Char], cur->u[Prop], cur->u[Metrics], cur->u[Script],
 		          cur->u[Other], cur->u[Dir], cur->u[Mirror], cur->u[Normed])
 		   != 8) {
@@ -140,6 +143,8 @@ int main(int argc, char *argv[]) {
 		}
 		fputc('\n', stdout);
 	}
+
+	free(cm);
 
 	return 0;
 }
