@@ -66,5 +66,7 @@ int main(int argc, char *argv[]) {
 		fputc('\n', stdout);
 	}
 
+	free(unigrams);
+
 	return 0;
 }

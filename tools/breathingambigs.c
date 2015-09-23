@@ -253,5 +253,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	free(runes);
+
 	return 0;
 }

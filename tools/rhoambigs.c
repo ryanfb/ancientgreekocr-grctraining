@@ -107,5 +107,7 @@ int main(int argc, char *argv[]) {
 		fputs("\t1\n", stdout);
 	}
 
+	free(runes);
+
 	return 0;
 }

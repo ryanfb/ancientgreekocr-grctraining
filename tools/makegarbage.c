@@ -87,5 +87,7 @@ int main(int argc, char *argv[]) {
 	}
 	fputc('\n', stdout);
 
+	free(charwords);
+
 	return 0;
 }

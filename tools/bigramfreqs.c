@@ -73,5 +73,7 @@ int main(int argc, char *argv[]) {
 		fputc('\n', stdout);
 	}
 
+	free(bigrams);
+
 	return 0;
 }
