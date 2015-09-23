@@ -138,7 +138,9 @@ langdata/Greek.xheights: tools/xheight
 
 langdata/grc/grc.config: grc.config
 	mkdir -p langdata/grc
-	sed '2i # commit: '`git rev-list -n 1 HEAD` < grc.config > $@
+	printf '2i \\\n# commit: %s\n' `git rev-list -n 1 HEAD` > sedcmd
+	sed -f sedcmd < grc.config > $@
+	rm -f sedcmd
 
 langdata/grc/grc.training_text: tools/makegarbage allchars.txt langdata/grc/grc.wordlist
 	mkdir -p langdata/grc
