@@ -81,8 +81,6 @@ AMBIGS = \
 	unicharambigs.quoteaccent
 
 GENLANGDATA = \
-	langdata/Greek.unicharset \
-	langdata/Greek.xheights \
 	langdata/grc/grc.config \
 	langdata/grc/grc.training_text \
 	langdata/grc/grc.training_text.bigram_freqs \
@@ -140,7 +138,7 @@ langdata/Greek.xheights: tools/xheight
 
 langdata/grc/grc.config: grc.config
 	mkdir -p langdata/grc
-	sed '2i # commit: '`git rev-list -n 1 HEAD` < $< > $@
+	sed '2i # commit: '`git rev-list -n 1 HEAD` < grc.config > $@
 
 langdata/grc/grc.training_text: tools/makegarbage allchars.txt langdata/grc/grc.wordlist
 	mkdir -p langdata/grc

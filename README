@@ -16,9 +16,10 @@ dictionary from which to generate the wordlists.
 
 The build process requires git, wget, a C compiler.
 
-If you change allchars.txt or the fonts used, you will also need
+If you change allchars.txt or the fonts used, you should also have
 the pango and cairo development libraries, which are used to
-calculate character metrics.
+calculate character metrics (langdata/Greek.unicharset and
+langdata/Greek.xheights).
 
 Make all of the prerequisites with the command:
   make langdata
