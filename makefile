@@ -136,7 +136,7 @@ langdata/Greek.xheights: tools/xheight
 		>>$@ ; \
 	done
 
-langdata/grc/grc.config: grc.config
+langdata/grc/grc.config: .git/HEAD grc.config
 	mkdir -p langdata/grc
 	printf '2i \\\n# commit: %s\n' `git rev-list -n 1 HEAD` > sedcmd
 	sed -f sedcmd < grc.config > $@
@@ -215,7 +215,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 clean:
 	rm -f tools/accentambigs tools/addmetrics tools/bigramfreqs tools/breathingambigs
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly tools/xheight
-	rm -f allchars.box unicharset
+	rm -f allchars.box unicharset sedcmd
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus wordlist.rigaudon
 	rm -rf corpus fonts rigaudon
