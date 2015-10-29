@@ -60,7 +60,6 @@ FONT_URLNAMES = \
 	GFS_SOLOMOS_OT
 
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
-RIGAUDONCOMMIT = 3f6292f656bd2920fc8980893ad57fa111153837
 
 PKG_CONFIG = pkg-config
 CAIROCFLAGS = `$(PKG_CONFIG) --cflags pangocairo`
@@ -98,16 +97,8 @@ corpus/.git/HEAD:
 	git clone https://github.com/PerseusDL/canonical-greekLit corpus
 	cd corpus && git checkout $(CORPUSCOMMIT)
 
-rigaudon/.git/HEAD:
-	rm -rf rigaudon
-	git clone https://github.com/brobertson/rigaudon
-	cd rigaudon && git checkout $(RIGAUDONCOMMIT)
-
 wordlist.perseus: tools/utf8greekonly tools/wordlistfromperseus.sh corpus/.git/HEAD
 	./tools/wordlistfromperseus.sh corpus/ | ./tools/utf8greekonly > $@
-
-wordlist.rigaudon: tools/wordlistfromrigaudon.sh rigaudon/.git/HEAD
-	./tools/wordlistfromrigaudon.sh < rigaudon/Dictionaries/greek_and_latin.txt | ./tools/utf8greekonly > $@
 
 unicharambigs.accent: tools/accentambigs
 	./tools/accentambigs > $@
@@ -151,9 +142,9 @@ langdata/grc/grc.unicharambigs: $(AMBIGS)
 	echo v1 > $@
 	cat $(AMBIGS) >> $@
 
-langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.perseus wordlist.rigaudon
+langdata/grc/grc.wordlist: tools/sortwordlist.sh wordlist.perseus
 	mkdir -p langdata/grc
-	cat wordlist.perseus wordlist.rigaudon | ./tools/sortwordlist.sh > $@
+	./tools/sortwordlist.sh < wordlist.perseus > $@
 
 langdata/grc/grc.training_text.bigram_freqs: tools/bigramfreqs wordlist.perseus
 	./tools/bigramfreqs < wordlist.perseus | LC_ALL="C" sort -n -r | awk '{print $$2, $$1}' > $@
@@ -217,7 +208,7 @@ clean:
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly tools/xheight
 	rm -f allchars.box unicharset sedcmd
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
-	rm -f wordlist.perseus wordlist.rigaudon
-	rm -rf corpus fonts rigaudon
+	rm -f wordlist.perseus
+	rm -rf corpus fonts
 	rm -f $(GENLANGDATA)
 	rm -f grc.traineddata

@@ -45,7 +45,6 @@ Several dependencies are automatically downloaded and verified by
 the build process:
 
 - The Perseus canonical-greekLit text corpus
-- The rigaudon repository for Bruce Robertson's dictionary
 - A collection of fonts from the Greek Font Society
 
 In case they are not available, they are archived at:
