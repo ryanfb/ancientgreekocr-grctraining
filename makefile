@@ -115,9 +115,9 @@ unicharambigs.omicronzero: tools/omicronzeroambigs.sh charsforambigs.txt
 langdata/Greek.unicharset: tools/addmetrics allchars.txt
 	sed 's/$$/ 0 0 0 0 0/g' < allchars.txt > allchars.box
 	unicharset_extractor allchars.box
-	set_unicharset_properties -U unicharset -O unicharset --script_dir .
-	./tools/addmetrics $(FONT_LIST) < unicharset > $@
-	rm -f allchars.box unicharset
+	./tools/addmetrics $(FONT_LIST) < unicharset > unicharset.metrics
+	set_unicharset_properties -U unicharset.metrics -O $@ --script_dir .
+	rm -f allchars.box unicharset unicharset.metrics
 
 langdata/Greek.xheights: tools/xheight
 	rm -f langdata/Greek.xheights
@@ -206,7 +206,7 @@ grc.traineddata: $(GENLANGDATA) fonts/download
 clean:
 	rm -f tools/accentambigs tools/addmetrics tools/bigramfreqs tools/breathingambigs
 	rm -f tools/makegarbage tools/rhoambigs tools/unigramfreqs tools/utf8greekonly tools/xheight
-	rm -f allchars.box unicharset sedcmd
+	rm -f allchars.box unicharset unicharset.metrics sedcmd
 	rm -f unicharambigs.accent unicharambigs.breathing unicharambigs.rho unicharambigs.omicronzero
 	rm -f wordlist.perseus
 	rm -rf corpus fonts
