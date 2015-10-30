@@ -129,7 +129,7 @@ langdata/Greek.xheights: tools/xheight
 
 langdata/grc/grc.config: .git/HEAD grc.config
 	mkdir -p langdata/grc
-	printf '2i \\\n# commit: %s\n' `git rev-list -n 1 HEAD` > sedcmd
+	printf '3i \\\n# commit: %s\n' `git rev-list -n 1 HEAD` > sedcmd
 	sed -f sedcmd < grc.config > $@
 	rm -f sedcmd
 
