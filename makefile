@@ -24,30 +24,6 @@ FONT_LIST = \
 	'GFS Pyrsos' \
 	'GFS Solomos'
 
-# TODO: Patch tesseract's tess_train.sh to process font list arguments sanely
-FONT_LIST_TESS = \
-	"GFS Artemisia \
-	+ GFS Artemisia Bold \
-	+ GFS Artemisia Bold Italic \
-	+ GFS Artemisia Italic \
-	+ GFS Bodoni \
-	+ GFS Bodoni Bold \
-	+ GFS Bodoni Bold Italic \
-	+ GFS Bodoni Italic \
-	+ GFS Didot \
-	+ GFS Didot Bold \
-	+ GFS Didot Bold Italic \
-	+ GFS Didot Italic \
-	+ GFS DidotClassic \
-	+ GFS Neohellenic \
-	+ GFS Neohellenic Bold \
-	+ GFS Neohellenic Bold Italic \
-	+ GFS Neohellenic Italic \
-	+ GFS Philostratos \
-	+ GFS Porson \
-	+ GFS Pyrsos \
-	+ GFS Solomos"
-
 FONT_URLNAMES = \
 	GFS_ARTEMISIA_OT \
 	GFS_BODONI_OT \
@@ -201,7 +177,7 @@ fonts/download: fontsums
 	touch $@
 
 grc.traineddata: $(GENLANGDATA) fonts/download
-	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST_TESS) --lang grc --langdata_dir langdata --overwrite --output_dir .
+	tesstrain.sh --exposures -3 -2 -1 0 1 2 3 --fonts_dir fonts --fontlist $(FONT_LIST) --lang grc --langdata_dir langdata --overwrite --output_dir .
 
 clean:
 	rm -f tools/accentambigs tools/addmetrics tools/bigramfreqs tools/breathingambigs
