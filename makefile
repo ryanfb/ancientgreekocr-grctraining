@@ -1,5 +1,5 @@
 # Note: remote files are archived at http://ancientgreekocr.org/grctraining.deps.tar.xz
-FONTSITE = http://greekfontsociety.gr
+FONTSITE = http://greekfontsociety.gr/_assets/fonts
 
 FONT_LIST = \
 	'GFS Artemisia' \
@@ -25,15 +25,15 @@ FONT_LIST = \
 	'GFS Solomos'
 
 FONT_URLNAMES = \
-	GFS_ARTEMISIA_OT \
-	GFS_BODONI_OT \
-	GFS_DIDOTCLASS_OT \
-	GFS_DIDOT_OT \
-	GFS_NEOHELLENIC_OT \
-	GFS_PHILOSTRATOS \
-	GFS_PORSON_OT \
-	GFS_PYRSOS \
-	GFS_SOLOMOS_OT
+	GFS_Artemisia \
+	GFS_Bodoni \
+	GFS_Didot_Classic \
+	GFS_Didot \
+	GFS_Neohellenic \
+	GFS_Philostratos \
+	GFS_Porson \
+	GFS_Pyrsos \
+	GFS_Solomos
 
 CORPUSCOMMIT = 5d069b29bd9dd40c8bb1dc1b9e2623236ebb22b9
 
@@ -165,7 +165,7 @@ fonts/download: fontsums
 	cd fonts && for i in $(FONT_URLNAMES); do \
 		wget -q -O $$i.zip $(FONTSITE)/$$i.zip ; \
 		unzip -q -j $$i.zip ; \
-		rm -f OFL-FAQ.txt OFL.txt *Specimen.pdf *Specimenn.pdf ; \
+		rm -f OFL-FAQ.txt OFL.txt *ttf *Specimen.pdf *Specimenn.pdf ; \
 		rm -f readme.rtf .DS_Store ._* $$i.zip ; \
 	done
 	chmod 644 fonts/*otf
